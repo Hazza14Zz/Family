@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة عائلة الشجعان</title>
+<meta name="theme-color" content="#022c22">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="top-bar">
+    <div class="top-bar-inner">
+        <div class="brand">
+            <div class="brand-mark">🦁</div>
+            <div>
+                <h1>لوحة عائلة الشجعان</h1>
+                <p id="familyMeta">متابعة النقاط والحضور</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <span class="who" id="whoAmI">—</span>
+            <button class="navlink" type="button" id="refreshBtn">🔄 تحديث</button>
+            <a class="navlink" href="setup.html">⚙️ الإعداد</a>
+            <button class="navlink danger" type="button" data-logout>🚪 خروج</button>
+        </div>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <div class="date-bar" id="dateBar">—</div>
+
+    <div id="notice"></div>
+
+    <!-- ١) مجاميع النقاط -->
+    <section class="section" id="secTotals">
+        <div class="section-head">
+            <div class="section-title">🏅 مجموع نقاط العائلة</div>
+            <div class="section-sub" id="totalsSub">—</div>
+        </div>
+        <div class="grid grid-3">
+            <div class="stat accent-em">
+                <div class="stat-label">📅 هذا الأسبوع</div>
+                <div class="stat-value" id="weekTotal">—</div>
+                <div class="stat-note" id="weekNote">&nbsp;</div>
+            </div>
+            <div class="stat accent-gold">
+                <div class="stat-label">🗓️ هذا الشهر</div>
+                <div class="stat-value" id="monthTotal">—</div>
+                <div class="stat-note" id="monthNote">&nbsp;</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">♾️ منذ البداية</div>
+                <div class="stat-value" id="allTotal">—</div>
+                <div class="stat-note" id="allNote">&nbsp;</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ٢) مراقب الغياب -->
+    <section class="section" id="secAbsence">
+        <div class="section-head">
+            <div class="section-title">🚨 مراقب الغياب — اليوم</div>
+            <div class="section-sub" id="todayLabel"></div>
+        </div>
+        <div id="absenceBox">
+            <div class="state"><span class="ico">⏳</span>جاري الفحص...</div>
+        </div>
+    </section>
+
+    <!-- ٣) نشاط اليوم -->
+    <section class="section" id="secToday">
+        <div class="section-head">
+            <div class="section-title">📆 نشاط اليوم لكل فرد</div>
+            <div class="section-sub" id="todaySub"></div>
+        </div>
+        <div class="card">
+            <div class="table-scroll">
+                <table class="data" id="todayTable">
+                    <thead>
+                        <tr>
+                            <th>الفرد</th>
+                            <th>المرحلة</th>
+                            <th>الحضور</th>
+                            <th>نقاط اليوم</th>
+                            <th>الصفحات</th>
+                            <th>المصحف / الزي</th>
+                        </tr>
+                    </thead>
+                    <tbody id="todayBody">
+                        <tr><td colspan="6"><div class="state"><span class="ico">⏳</span>جاري التحميل...</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ٤) نقاط الأفراد -->
+    <section class="section" id="secMembers">
+        <div class="section-head">
+            <div class="section-title">👥 نقاط الأفراد</div>
+            <div class="btn-row" id="rangeTabs">
+                <button class="btn btn-ghost"   data-range="week"  style="padding:9px 18px;font-size:12px">الأسبوع</button>
+                <button class="btn btn-ghost"   data-range="month" style="padding:9px 18px;font-size:12px">الشهر</button>
+                <button class="btn btn-primary" data-range="all"   style="padding:9px 18px;font-size:12px">منذ البداية</button>
+            </div>
+        </div>
+        <div id="membersBox" class="grid grid-auto">
+            <div class="state"><span class="ico">⏳</span>جاري التحميل...</div>
+        </div>
+    </section>
+
+    <!-- ٥) ترتيب تفصيلي -->
+    <section class="section" id="secTable">
+        <div class="section-head">
+            <div class="section-title">📊 الترتيب التفصيلي</div>
+            <div class="section-sub" id="tableSub"></div>
+        </div>
+        <div class="card">
+            <div class="table-scroll">
+                <table class="data" id="rankTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الفرد</th>
+                            <th>المرحلة</th>
+                            <th>النقاط</th>
+                            <th style="min-width:120px">النسبة</th>
+                            <th>أيام مسجّلة</th>
+                            <th>غياب</th>
+                            <th>الصفحات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankBody">
+                        <tr><td colspan="8"><div class="state"><span class="ico">⏳</span>جاري التحميل...</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ٦) بحاجة إلى دعم -->
+    <section class="section" id="secSupport">
+        <div class="section-head">
+            <div class="section-title">🤝 بحاجة إلى دعم وتشجيع</div>
+            <div class="section-sub" id="supportSub"></div>
+        </div>
+        <div class="support-card">
+            <div class="support-note">
+                💚 هذه ليست قائمة عتاب. هؤلاء إخوانكم الأقل نقاطاً في الفترة المختارة —
+                شجّعوهم، وذكّروهم، وساعدوهم على اللحاق بالركب. الشجاعة أن نرفع بعضنا معاً.
+            </div>
+            <div id="supportBox">
+                <div class="state"><span class="ico">⏳</span>جاري التحميل...</div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

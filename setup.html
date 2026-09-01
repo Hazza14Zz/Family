@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إعداد العائلة — لوحة عائلة الشجعان</title>
+<meta name="theme-color" content="#022c22">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<header class="top-bar">
+    <div class="top-bar-inner">
+        <div class="brand">
+            <div class="brand-mark">🦁</div>
+            <div>
+                <h1>إعداد عائلة الشجعان</h1>
+                <p>اختيار أفراد العائلة من مراحل الحلقة</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <span class="who" id="whoAmI">—</span>
+            <a class="navlink" href="dashboard.html">📊 اللوحة</a>
+            <button class="navlink is-active" type="button">⚙️ الإعداد</button>
+            <button class="navlink danger" type="button" data-logout>🚪 خروج</button>
+        </div>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <div class="date-bar" id="dateBar">—</div>
+
+    <!-- الأعضاء الحاليون -->
+    <section class="section">
+        <div class="section-head">
+            <div class="section-title">👨‍👩‍👦 أفراد العائلة الحاليون</div>
+            <div class="section-sub" id="currentSub"></div>
+        </div>
+        <div class="card" id="currentBox">
+            <div class="state"><span class="ico">⏳</span>جاري تحميل إعداد العائلة...</div>
+        </div>
+    </section>
+
+    <!-- الاختيار -->
+    <section class="section">
+        <div class="section-head">
+            <div class="section-title">➕ إضافة أفراد من مرحلة</div>
+            <div class="section-sub">اختر المرحلة ثم علّم على الطلاب الذين ينتمون للعائلة</div>
+        </div>
+
+        <div class="card">
+            <label class="field">
+                <span>المرحلة الدراسية</span>
+                <select class="input" id="levelSelect">
+                    <option value="">— اختر المرحلة —</option>
+                </select>
+            </label>
+
+            <div id="pickerBox">
+                <div class="state"><span class="ico">🎓</span>اختر مرحلة لعرض طلابها</div>
+            </div>
+
+            <div class="btn-row" style="margin-top:16px">
+                <button class="btn btn-primary" id="saveBtn" disabled>💾 حفظ العائلة</button>
+                <button class="btn btn-ghost" id="selectAllBtn" disabled>تحديد كل المرحلة</button>
+                <button class="btn btn-ghost" id="clearLevelBtn" disabled>إلغاء تحديد المرحلة</button>
+                <span class="section-sub" id="saveHint"></span>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script type="module" src="js/setup.js"></script>
+</body>
+</html>

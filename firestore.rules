@@ -1,0 +1,194 @@
+rules_version = '2';
+
+// ============================================================
+// قواعد أمان Firestore — نسخة محدَّثة تشمل لوحة عائلة الشجعان
+// ------------------------------------------------------------
+// هذا الملف = قواعد "سجل متابعة الحلقات" كما هي، مضافاً إليها
+// قسم واحد جديد في آخر الملف: family_config.
+//
+// انسخه إلى مجلد سجل متابعة الحلقات (daragati/firestore.rules)
+// وانشره مرّة واحدة:
+//     firebase deploy --only firestore:rules
+//
+// ⚠️ مهم: القائمة البيضاء في المتصفح (js/config.js) تحسّن التجربة
+// فقط. المنع الحقيقي هو السطر التالي داخل قسم family_config:
+//     request.auth.token.email == FAMILY_EMAIL
+// فحتى لو عدّل أحدهم ملفات الواجهة، لن يستطيع الخادم أن يعطيه شيئاً.
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── البريد الوحيد المصرّح له بلوحة العائلة ───────────
+    function familyEmail() {
+      return 'hazzatiger2023@gmail.com';
+    }
+
+    // ملاحظة: لم نشترط email_verified حتى لا يُقفل الحساب على نفسه
+    // إن لم يكن البريد موثّقاً بعد. لتشديد إضافي، وثّق البريد من
+    // Firebase Console ثم أضف السطر:
+    //     && request.auth.token.email_verified == true
+    function isFamilyOwner() {
+      return request.auth != null
+             && request.auth.token.email == familyEmail();
+    }
+
+    // ── دوال مساعدة ───────────────────────────────────────
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function hasUserDoc() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function role() {
+      return 'role' in request.auth.token
+             ? request.auth.token.role
+             : (hasUserDoc() && 'role' in userDoc() ? userDoc().role : null);
+    }
+
+    function levelOf() {
+      return 'level' in request.auth.token
+             ? request.auth.token.level
+             : (hasUserDoc() && 'level' in userDoc() ? userDoc().level : null);
+    }
+
+    function isAdmin() {
+      return signedIn() && role() == 'admin';
+    }
+
+    function isTeacher() {
+      return signedIn() && (role() == 'teacher' || role() == 'admin');
+    }
+
+    function isSection() {
+      return signedIn() && role() == 'section';
+    }
+
+    function sectionCanRead(levelValue) {
+      return isSection() && levelOf() == levelValue;
+    }
+
+    function validLevel(v) {
+      return v in ['elementary', 'middleschool', 'highschool'];
+    }
+
+    function validDate(v) {
+      return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+
+    // ── المراحل ───────────────────────────────────────────
+    match /levels/{levelId} {
+      allow read:  if signedIn();
+      allow write: if isAdmin() && validLevel(levelId);
+    }
+
+    // ── الطلاب ────────────────────────────────────────────
+    // ‼️ أُضيف isFamilyOwner() للقراءة فقط: لوحة العائلة تحتاج
+    //    أسماء الطلاب لعرضها، ولا تكتب فيهم شيئاً أبداً.
+    match /students/{docId} {
+      allow read: if isTeacher() || isFamilyOwner() || sectionCanRead(resource.data.level);
+
+      allow create, update: if isTeacher()
+        && validLevel(request.resource.data.level)
+        && request.resource.data.number is int
+        && request.resource.data.number > 0
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 120;
+
+      allow delete: if isAdmin();
+    }
+
+    // ── السجلات اليومية ───────────────────────────────────
+    // قراءة فقط للوحة العائلة — لا كتابة ولا حذف.
+    match /records/{docId} {
+      allow read: if isTeacher() || isFamilyOwner() || sectionCanRead(resource.data.level);
+
+      allow create, update: if isTeacher()
+        && validLevel(request.resource.data.level)
+        && validDate(request.resource.data.date)
+        && request.resource.data.number is int
+        && request.resource.data.number > 0
+        && request.resource.data.points is number
+        && request.resource.data.points >= -1000
+        && request.resource.data.points <= 1000
+        && request.resource.data.attendance in ['حاضر', 'متأخر', 'غائب', 'معذور']
+        && docId == request.resource.data.level + '_'
+                  + string(request.resource.data.number) + '_'
+                  + request.resource.data.date;
+
+      allow delete: if isAdmin();
+    }
+
+    // ── إضافة/خصم النقاط اليدوي ───────────────────────────
+    match /pointsAdjustments/{docId} {
+      allow read: if isTeacher() || isFamilyOwner() || sectionCanRead(resource.data.level);
+
+      allow create: if isTeacher()
+        && validLevel(request.resource.data.level)
+        && validDate(request.resource.data.date)
+        && request.resource.data.number is int
+        && request.resource.data.delta is number
+        && request.resource.data.delta >= -1000
+        && request.resource.data.delta <= 1000
+        && request.resource.data.by == request.auth.uid;
+
+      allow update, delete: if isAdmin();
+    }
+
+    // ── سجل التغييرات ─────────────────────────────────────
+    match /history/{docId} {
+      allow read:   if isAdmin();
+      allow create: if isTeacher()
+        && request.resource.data.teacherUid == request.auth.uid;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ── إعدادات الحلقة ────────────────────────────────────
+    match /settings/{docId} {
+      allow read:  if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ── ملفات المستخدمين ──────────────────────────────────
+    match /users/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+
+      allow create, update: if isAdmin()
+        && request.resource.data.role in ['admin', 'teacher', 'section']
+        && (request.resource.data.role == 'admin'
+            || !('level' in request.resource.data)
+            || request.resource.data.level == null
+            || validLevel(request.resource.data.level));
+
+      allow delete: if isAdmin();
+    }
+
+    // ══════════════════════════════════════════════════════
+    // ✨ جديد — إعداد لوحة عائلة الشجعان
+    // ------------------------------------------------------
+    // مستند واحد فقط: family_config/brave_family
+    // يقرأه ويكتبه صاحب البريد المصرّح له وحده، ويقرأه المشرف
+    // للاطلاع. حجم القائمة محدود حتى لا تُستغل كمساحة تخزين.
+    // ══════════════════════════════════════════════════════
+    match /family_config/{docId} {
+      allow read: if isFamilyOwner() || isAdmin();
+
+      allow write: if isFamilyOwner()
+        && docId == 'brave_family'
+        && request.resource.data.members is list
+        && request.resource.data.members.size() <= 200;
+    }
+
+    // ── كل ما عدا ذلك ممنوع ───────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول — لوحة عائلة الشجعان</title>
+<meta name="theme-color" content="#022c22">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --em-950: #022c22; --em-900: #064e3b; --em-800: #065f46;
+        --em-700: #047857; --em-600: #059669; --em-500: #10b981;
+        --gold-700: #92400e; --gold-500: #d97706; --gold-400: #f59e0b;
+        --gold-300: #fbbf24; --gold-200: #fde68a; --gold-100: #fef3c7;
+        --s-200: #e7e5e4; --s-500: #78716c; --s-800: #292524;
+    }
+    *, *::before, *::after {
+        margin: 0; padding: 0; box-sizing: border-box;
+        font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+    }
+    html, body { min-height: 100vh; overflow-x: hidden; }
+    body {
+        direction: rtl;
+        background: linear-gradient(160deg, var(--em-950) 0%, var(--em-900) 35%, var(--em-800) 70%, #0a7a4f 100%);
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px; position: relative;
+    }
+    /* نقش هندسي إسلامي */
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(251,191,36,0.07)' stroke-width='1'%3E%3Cpolygon points='60,5 72,30 100,30 78,47 87,72 60,55 33,72 42,47 20,30 48,30'/%3E%3Cpolygon points='60,18 69,36 90,36 73,48 80,66 60,54 40,66 47,48 30,36 51,36'/%3E%3Ccircle cx='60' cy='60' r='42'/%3E%3Ccircle cx='60' cy='60' r='30'/%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none; z-index: 0;
+    }
+    .wrapper { width: 100%; max-width: 420px; position: relative; z-index: 1; }
+
+    .crest { text-align: center; margin-bottom: 22px; }
+    .crest .mark {
+        width: 74px; height: 74px; margin: 0 auto 12px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+        border: 1.5px solid rgba(251,191,36,.5);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 36px;
+        box-shadow: 0 8px 30px rgba(0,0,0,.3);
+    }
+    .crest h1 { color: #fff; font-size: 23px; font-weight: 900; letter-spacing: -.3px; }
+    .crest p  { color: var(--gold-200); font-size: 12px; font-weight: 600; margin-top: 5px; }
+
+    .card {
+        background: rgba(255,255,255,.97);
+        border-radius: 26px;
+        padding: 28px 24px 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,.35);
+        border: 1px solid rgba(251,191,36,.25);
+        position: relative; overflow: hidden;
+    }
+    .card::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 4px;
+        background: linear-gradient(90deg, var(--gold-500), var(--gold-300), var(--gold-500));
+    }
+    .card.shake { animation: shake .45s ease; }
+    @keyframes shake {
+        0%,100% { transform: translateX(0); }
+        20% { transform: translateX(-9px); }
+        40% { transform: translateX(9px); }
+        60% { transform: translateX(-6px); }
+        80% { transform: translateX(6px); }
+    }
+
+    .card h2 {
+        font-size: 17px; font-weight: 800; color: var(--em-800);
+        text-align: center; margin-bottom: 4px;
+    }
+    .card .sub {
+        font-size: 12px; color: var(--s-500); font-weight: 600;
+        text-align: center; margin-bottom: 20px;
+    }
+
+    label { display: block; margin-bottom: 15px; }
+    label > span {
+        display: block; font-size: 12px; font-weight: 800;
+        color: var(--em-800); margin-bottom: 6px;
+    }
+    .infield { position: relative; }
+    input {
+        width: 100%;
+        padding: 13px 15px;
+        border: 2px solid var(--s-200);
+        border-radius: 14px;
+        font-size: 14px;
+        background: #fafaf9;
+        color: var(--s-800);
+        direction: rtl;
+        transition: border-color .2s, background .2s, box-shadow .2s;
+    }
+    #email { direction: ltr; text-align: left; }
+    input:focus {
+        outline: none; border-color: var(--em-500); background: #fff;
+        box-shadow: 0 0 0 3px rgba(16,185,129,.13);
+    }
+    #togglePass {
+        position: absolute; left: 10px; top: 50%;
+        transform: translateY(-50%);
+        background: none; border: none; cursor: pointer;
+        font-size: 17px; padding: 4px 6px; line-height: 1;
+    }
+
+    .err {
+        display: none;
+        background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
+        border-radius: 14px; padding: 12px 14px;
+        font-size: 13px; font-weight: 700; line-height: 1.7;
+        margin-bottom: 15px;
+    }
+    .err.show { display: block; }
+
+    button.submit {
+        width: 100%;
+        padding: 14px;
+        border: none; border-radius: 9999px;
+        background: linear-gradient(135deg, var(--em-700), var(--em-600));
+        color: #fff; font-size: 15px; font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(5,150,105,.35);
+        transition: transform .15s, box-shadow .2s;
+    }
+    button.submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 9px 24px rgba(5,150,105,.45); }
+    button.submit:active:not(:disabled) { transform: translateY(0); }
+    button.submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .lock-note {
+        margin-top: 16px;
+        background: var(--gold-100);
+        border-radius: 14px;
+        padding: 11px 14px;
+        font-size: 11.5px; font-weight: 700; color: var(--gold-700);
+        text-align: center; line-height: 1.7;
+    }
+    .foot { text-align: center; margin-top: 18px; color: rgba(255,255,255,.55); font-size: 11px; font-weight: 600; }
+
+    @media (max-width: 420px) {
+        .card { padding: 24px 18px 20px; border-radius: 22px; }
+        .crest h1 { font-size: 20px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="crest">
+        <div class="mark">🦁</div>
+        <h1>لوحة عائلة الشجعان</h1>
+        <p>متابعة نقاط وحضور أفراد العائلة</p>
+    </div>
+
+    <div class="card" id="card">
+        <h2>تسجيل الدخول</h2>
+        <div class="sub">حساب واحد مصرّح له بالدخول</div>
+
+        <div class="err" id="errorBox"></div>
+
+        <form id="loginForm" novalidate>
+            <label>
+                <span>البريد الإلكتروني</span>
+                <input type="email" id="email" autocomplete="username"
+                       placeholder="name@example.com" dir="ltr">
+            </label>
+
+            <label>
+                <span>كلمة المرور</span>
+                <div class="infield">
+                    <input type="password" id="password" autocomplete="current-password"
+                           placeholder="••••••••">
+                    <button type="button" id="togglePass" aria-label="إظهار كلمة المرور">👁</button>
+                </div>
+            </label>
+
+            <button type="submit" class="submit" id="submitBtn">🚪 دخول</button>
+        </form>
+
+        <div class="lock-note">
+            🔒 هذه اللوحة مقفلة على حساب واحد. أي حساب آخر يُسجَّل خروجه تلقائياً.
+        </div>
+    </div>
+
+    <div class="foot">لوحة عائلة الشجعان · موقع مستقل يشارك قاعدة بيانات سجل الحلقات</div>
+</div>
+
+<script type="module" src="js/login.js"></script>
+</body>
+</html>
